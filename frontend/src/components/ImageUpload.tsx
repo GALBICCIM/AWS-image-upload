@@ -1,16 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const ImageUpload: React.FC = () => {
    const [file, setFile] = useState<File | null>(null);
    const [preview, setPreview] = useState<string>("");
    const [message, setMessage] = useState<string>("");
 
+   useEffect(() => {
+      if (file) {
+         const objectURL = URL.createObjectURL(file);
+         setPreview(objectURL);
+
+         return () => {
+            URL.revokeObjectURL(objectURL);
+         };
+      } else {
+         setPreview("");
+      }
+   }, [file]);
+
    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
          const selectedFile = e.target.files[0];
 
          setFile(selectedFile);
-         setPreview(URL.createObjectURL(selectedFile));
       }
    };
 
@@ -34,6 +46,8 @@ const ImageUpload: React.FC = () => {
          const result = await response.json();
 
          setMessage(result.message || "업로드를 성공적으로 완료했습니다.");
+
+         setFile(null);
       } catch (e) {
          setMessage("파일을 올리는 데에 문제가 생겼습니다.");
          console.error(e);

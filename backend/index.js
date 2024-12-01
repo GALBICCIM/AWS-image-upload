@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const AWS = require("aws-sdk");
 const fs = require("fs");
-const { KeyObject } = require("crypto");
+const path = require("path");
 
 require("dotenv").config();
 
@@ -33,6 +33,12 @@ const uploadS3 = (filePath, bucketName, key) => {
       })
       .promise();
 };
+
+app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+app.get("*", (req, res) => {
+   res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
+});
 
 app.post("/upload", upload.single("image"), async (req, res) => {
    try {
